@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Twogether · Senseih Water Hotline</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+  tailwind.config={theme:{extend:{
+    fontFamily:{display:['"Space Grotesk"','sans-serif'],sans:['Inter','sans-serif'],mono:['"JetBrains Mono"','monospace']},
+    colors:{navy:'#0B1F3A',steel:'#1E3A5F',flow:'#0891B2',aqua:'#06B6D4',tg:'#229ED9',tgdk:'#179CDE'},
+    boxShadow:{card:'0 1px 2px rgba(15,23,42,.04), 0 8px 24px -12px rgba(15,23,42,.18)',lift:'0 12px 40px -12px rgba(11,31,58,.35)'}
+  }}}
+</script>
+<style>
+  html{scroll-behavior:smooth}body{background:#F1F5F9}
+  .waterline{height:3px;background:linear-gradient(90deg,transparent,#06B6D4 12%,#229ED9 50%,#0891B2 88%,transparent);background-size:220% 100%;animation:flow 6s linear infinite}@keyframes flow{to{background-position:-220% 0}}
+  .scroll::-webkit-scrollbar{width:8px;height:8px}.scroll::-webkit-scrollbar-thumb{background:#CBD5E1;border-radius:8px}
+  .rise{animation:rise .3s cubic-bezier(.2,.8,.2,1)}@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .pop{animation:pop .2s cubic-bezier(.2,.8,.2,1)}@keyframes pop{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+  .tab-active{color:#0B1F3A}.tab-active::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:2px;background:#229ED9;border-radius:2px}
+  input:focus-visible,select:focus-visible,button:focus-visible,textarea:focus-visible{outline:2px solid #229ED9;outline-offset:2px}
+  .wave{display:flex;align-items:center;gap:2px;height:22px}.wave span{width:3px;height:5px;background:currentColor;border-radius:2px;animation:wv 1s ease-in-out infinite}@keyframes wv{0%,100%{height:4px}50%{height:20px}}
+  .scanbox{position:relative;overflow:hidden}.scanline{position:absolute;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,#22d3ee,transparent);box-shadow:0 0 12px #22d3ee;animation:scan 1.3s ease-in-out infinite}@keyframes scan{0%{top:0}50%{top:100%}100%{top:0}}
+  .pulse-ring{animation:pr 1.4s ease-out infinite}@keyframes pr{0%{box-shadow:0 0 0 0 rgba(239,68,68,.5)}100%{box-shadow:0 0 0 14px rgba(239,68,68,0)}}
+  .tickpop{animation:tp .5s cubic-bezier(.2,1.4,.4,1)}@keyframes tp{0%{transform:scale(0)}100%{transform:scale(1)}}
+  .spin{animation:sp .8s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
+  .tgchat{background:#AAD3E5;background-image:radial-gradient(circle at 20% 30%,rgba(255,255,255,.25),transparent 40%),radial-gradient(circle at 80% 70%,rgba(255,255,255,.2),transparent 40%)}
+  .flyto{animation:fly 1s ease-in forwards}@keyframes fly{0%{opacity:0;transform:translateY(6px) scale(.9)}30%{opacity:1;transform:none}100%{opacity:1}}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body class="font-sans text-slate-800 min-h-screen">
+
+  <header class="sticky top-0 z-40 bg-navy text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-aqua to-tg grid place-items-center shrink-0 shadow-lift">
+          <svg viewBox="0 0 24 24" class="w-5 h-5 text-white" fill="currentColor"><path d="M12 2.5s6.5 7 6.5 11.2A6.5 6.5 0 0 1 12 20.2a6.5 6.5 0 0 1-6.5-6.5C5.5 9.5 12 2.5 12 2.5z"/></svg>
+        </div>
+        <div class="min-w-0"><p class="font-display font-700 leading-tight tracking-tight truncate">Team&nbsp;Twogether</p>
+          <p class="text-[11px] text-slate-300 leading-tight truncate">Senseih Water Hotline · Telegram → Hydro1</p></div>
+      </div>
+      <nav class="bg-white/10 rounded-xl p-1 flex text-sm font-500 shrink-0">
+        <button id="nav-hotline" onclick="setView('hotline')" class="px-3 sm:px-3.5 py-1.5 rounded-lg flex items-center gap-1.5 transition"><span>💬</span><span class="hidden sm:inline">Telegram Hotline</span></button>
+        <button id="nav-dashboard" onclick="setView('dashboard')" class="px-3 sm:px-3.5 py-1.5 rounded-lg flex items-center gap-1.5 transition"><span>📊</span><span class="hidden sm:inline">Status &amp; Checkpoints</span>
+          <span id="queue-badge" class="hidden text-[10px] font-600 bg-amber-400 text-navy rounded-full px-1.5 py-0.5">0</span></button>
+      </nav>
+    </div>
+    <div class="waterline"></div>
+  </header>
+
+  <!-- HOTLINE + PIPELINE -->
+  <main id="view-hotline" class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+    <div class="mb-6">
+      <p class="text-xs font-600 tracking-widest text-tg uppercase mb-1">Public intake · Telegram Hotline Bot</p>
+      <h1 class="font-display font-700 text-3xl text-navy tracking-tight">One number, one bot, one pipeline</h1>
+      <p class="text-slate-500 mt-2 max-w-2xl">Anyone reports a water issue to the public hotline with a photo, an optional voice note, a pin and their contact. The AI pipeline extracts, matches it to one of the 54 master tasks, checks the record, and pushes a clean payload to <b>Hydro1</b> — with Makara &amp; Ravi stepping in only when confidence or data quality dips.</p>
+    </div>
+    <div class="grid lg:grid-cols-[minmax(0,400px)_1fr] gap-8 items-start">
+      <section class="mx-auto w-full max-w-[400px]">
+        <div class="rounded-[28px] bg-navy p-2.5 shadow-lift"><div id="tg-phone" class="rounded-[22px] bg-white overflow-hidden flex flex-col h-[660px]"></div></div>
+      </section>
+      <section id="tg-pipeline"></section>
+    </div>
+  </main>
+
+  <!-- DASHBOARD -->
+  <main id="view-dashboard" class="hidden max-w-7xl mx-auto px-4 sm:px-6 py-8">
+    <div class="flex items-end justify-between flex-wrap gap-4 mb-6">
+      <div><p class="text-xs font-600 tracking-widest text-tg uppercase mb-1">Ops · Makara &amp; Ravi</p>
+        <h1 class="font-display font-700 text-3xl text-navy tracking-tight">Status &amp; Checkpoints</h1></div>
+      <div id="stat-row" class="flex gap-2 flex-wrap"></div>
+    </div>
+    <div class="grid lg:grid-cols-[1fr_320px] gap-6 items-start">
+      <section class="bg-white rounded-2xl border border-slate-200 shadow-card overflow-hidden">
+        <div class="border-b border-slate-100 px-4 sm:px-5 flex items-center justify-between gap-3">
+          <div id="tabs" class="flex gap-4 overflow-x-auto text-sm font-500 text-slate-500 scroll"></div>
+          <button onclick="exportAll()" class="shrink-0 my-2 text-[12px] font-600 text-white bg-navy hover:bg-steel rounded-lg px-3 py-1.5 transition flex items-center gap-1.5">
+            <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 21h16"/></svg>Export all</button>
+        </div>
+        <div id="cards" class="p-3 sm:p-4 space-y-3"></div>
+        <div id="empty-state" class="hidden py-16 text-center"><p class="text-slate-400 text-sm">No intake items in this view.</p></div>
+      </section>
+      <aside class="space-y-5">
+        <div class="bg-sky-50 border border-sky-100 rounded-2xl p-5">
+          <p class="font-600 text-sm text-navy mb-1.5">Checkpoint statuses</p>
+          <div id="status-legend" class="space-y-1.5 text-[12px]"></div>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-card">
+          <p class="font-600 text-sm text-navy mb-2">IWA loss classification</p>
+          <div class="space-y-1.5 text-[12px]">
+            <p class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>Real Loss — physical leakage</p>
+            <p class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-violet-500"></span>Apparent Loss — metering</p>
+            <p class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>NRW Data — commercial</p>
+            <p class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>Authorized — operations</p>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <div id="modal-root"></div>
+  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] hidden"><div class="bg-navy text-white text-sm px-4 py-2.5 rounded-xl shadow-lift flex items-center gap-2 pop"><span id="toast-icon">✓</span><span id="toast-msg"></span></div></div>
+
+<script>
+/* ============================================================
+   MASTER TASK SCHEMA — 54 task types · 6 category classes
+   (Senseih Water Utility Daily Work Report 2025)
+   IWA loss classification tagged onto each task.
+   ============================================================ */
+const CAT_STYLE={pipe:{ico:'bg-rose-100 text-rose-600',text:'text-rose-700'},csr:{ico:'bg-amber-100 text-amber-600',text:'text-amber-700'},meter:{ico:'bg-violet-100 text-violet-600',text:'text-violet-700'},treat:{ico:'bg-cyan-100 text-cyan-600',text:'text-cyan-700'},admin:{ico:'bg-blue-100 text-blue-600',text:'text-blue-700'},other:{ico:'bg-slate-100 text-slate-600',text:'text-slate-700'}};
+const CAT_LABEL={pipe:'Pipeline and Infrastructure',csr:'Customer Service Request',meter:'Water Meter Services',treat:'Water Treatment Operation',admin:'Billing and Administration',other:'Others not clearly defined'};
+const IWA_ASSET={pipe:'Distribution Main',csr:'Service / Customer',meter:'Customer Meter',treat:'Treatment / Production',admin:'Commercial',other:'Other'};
+const LOSS_STYLE={'Real Loss':'bg-rose-100 text-rose-700','Apparent Loss':'bg-violet-100 text-violet-700','NRW Data':'bg-blue-100 text-blue-700','Authorized':'bg-emerald-100 text-emerald-700','Unclassified':'bg-slate-100 text-slate-600'};
+
+const T={};
+function reg(slug,name,icon,cat,loss,fields){T[slug]={name,icon,cat,loss,iwa:IWA_ASSET[cat],fields};}
+/* Pipeline and Infrastructure */
+reg('repair_pipe','Repair Pipe','🔧','pipe','Real Loss',[{k:'location',label:'Location',type:'text',req:true},{k:'damage',label:'Type of Damage',type:'select',req:true,opts:['Leak','Burst','Crack']},{k:'severity',label:'Severity',type:'select',req:true,opts:['Minor','Major']},{k:'photo',label:'Photo',type:'photo',req:false}]);
+reg('lay_pipe','Lay Pipe','🧱','pipe','Authorized',[{k:'location',label:'Location',type:'text',req:true},{k:'material',label:'Pipe Material & Length',type:'text',req:true},{k:'points',label:'Connection Point(s)',type:'text',req:true},{k:'diameter',label:'Pipe Diameter',type:'select',req:true,opts:['15mm','25mm','50mm','90mm','110mm','160mm','200mm','315mm']},{k:'photo',label:'Photo',type:'photo',req:false}]);
+reg('fuse_weld_pipe','Fuse / Weld Pipe','🔩','pipe','Real Loss',[{k:'location',label:'Location',type:'text',req:true},{k:'material',label:'Pipe Material',type:'select',req:true,opts:['PE','PVC','FETTO','Other']},{k:'size',label:'Pipe Size',type:'select',req:true,opts:['25mm','50mm','90mm','110mm','160mm','200mm']},{k:'reason',label:'Reason for Fusing / Welding',type:'text',req:true}]);
+reg('request_replace_main','Request to Replace Main Pipeline System','📋','pipe','Real Loss',[{k:'location',label:'Pipeline Location',type:'text',req:true},{k:'reason',label:'Reason for Request',type:'text',req:true},{k:'severity',label:'Problem Severity',type:'select',req:true,opts:['Low','Medium','High']},{k:'diameter',label:'Pipe Diameter',type:'select',req:true,opts:['110mm','160mm','200mm','315mm','400mm']},{k:'material',label:'Pipe Material',type:'select',req:true,opts:['PE','PVC','FETTO','Other']},{k:'photo',label:'Photo',type:'photo',req:false}]);
+reg('replace_main','Replace Main Pipeline System','🛠️','pipe','Real Loss',[{k:'location',label:'Pipeline Location',type:'text',req:true},{k:'material',label:'Existing Pipe Material',type:'select',req:true,opts:['PE','PVC','FETTO','Other']},{k:'size',label:'Existing Pipe Size',type:'select',req:true,opts:['110mm','160mm','200mm','315mm','400mm']},{k:'reason',label:'Reason for Replacement',type:'text',req:true}]);
+/* Customer Service Request */
+reg('new_water_connection','New Water Connection','🚰','csr','Authorized',[{k:'customer',label:'Customer Name',type:'text',req:true},{k:'contact',label:'Contact Number',type:'text',req:true},{k:'address',label:'Service Address',type:'text',req:true},{k:'building',label:'Building Type',type:'select',req:true,opts:['House','Shop','Business']},{k:'meter',label:'Water Meter Serial Number',type:'text',req:true},{k:'install',label:'Installation Date',type:'date',req:true}]);
+reg('inspect_customer_location','Inspect Customer Location','🔍','csr','Authorized',[{k:'customer',label:'Customer Name',type:'text',req:true},{k:'address',label:'Service Address',type:'text',req:true},{k:'reason',label:'Reason for Inspection',type:'text',req:true},{k:'photo',label:'Photo',type:'photo',req:false}]);
+reg('suspend_water_usage',"Suspend Customer's Water Usage",'⏸️','csr','Authorized',[{k:'meter',label:'Water Meter Serial Number',type:'text',req:true},{k:'reason',label:'Reason for Suspension',type:'text',req:true},{k:'method',label:'Method of Suspension',type:'select',req:true,opts:['Valve Off','Meter Removal','Cap Off']},{k:'owing',label:'Amount Owing',type:'number',req:false},{k:'photo',label:'Photo',type:'photo',req:false}]);
+reg('request_reconnection','Request Water Reconnection','🔌','csr','Authorized',[{k:'meter',label:'Water Meter Serial Number',type:'text',req:true},{k:'reason',label:'Reason for Reconnection',type:'text',req:true},{k:'method',label:'Method of Reconnection',type:'select',req:true,opts:['Valve On','Meter Re-fit','Uncap']},{k:'owing',label:'Amount Owing',type:'number',req:false},{k:'photo',label:'Photo',type:'photo',req:false}]);
+reg('temp_suspend','Temporarily Suspend Water Usage','⏳','csr','Authorized',[{k:'customer',label:'Customer Name',type:'text',req:true},{k:'address',label:'Service Address',type:'text',req:true},{k:'account',label:'Account / Meter Number',type:'text',req:true},{k:'reason',label:'Reason for Suspension',type:'text',req:true},{k:'effective',label:'Effective Date',type:'date',req:true}]);
+reg('reconnect_supply',"Reconnect Customer's Water Supply",'▶️','csr','Authorized',[{k:'customer',label:'Customer Name',type:'text',req:true},{k:'address',label:'Service Address',type:'text',req:true},{k:'account',label:'Account / Meter Number',type:'text',req:true},{k:'reason',label:'Reason for Reconnection',type:'text',req:true}]);
+reg('request_termination','Request Permanent Water Service Termination','🚫','csr','Authorized',[{k:'requested',label:'Requested Date & Time',type:'text',req:true},{k:'location',label:'Location',type:'text',req:true},{k:'account',label:'Customer Account / Meter No.',type:'text',req:true},{k:'size',label:'Existing Pipe Size',type:'select',req:true,opts:['15mm','25mm','50mm','90mm','110mm']},{k:'reason',label:'Reason for Termination',type:'text',req:true},{k:'priority',label:'Priority',type:'select',req:true,opts:['Low','Medium','High']},{k:'officer',label:'Assigned Officer',type:'text',req:true},{k:'photo',label:'Photo',type:'photo',req:false},{k:'pressure',label:'Pipeline Pressure Reading',type:'number',req:true}]);
+/* Water Meter Services */
+reg('replace_water_meter','Replace Water Meter','📟','meter','Apparent Loss',[{k:'customer',label:'Customer Name',type:'text',req:true},{k:'address',label:'Service Address',type:'text',req:true},{k:'existing',label:'Existing Meter Number',type:'text',req:true},{k:'reason',label:'Reason for Replacement',type:'select',req:true,opts:['Under-registration','Faulty','Aged','Damaged','Tampered']},{k:'meter',label:'Water Meter Serial Number',type:'text',req:true},{k:'install',label:'Installation Date',type:'date',req:true}]);
+reg('relocate_water_meter','Relocate Water Meter','📍','meter','Authorized',[{k:'customer',label:'Customer Name',type:'text',req:true},{k:'address',label:'Service Address',type:'text',req:true},{k:'from',label:'Existing Meter Location',type:'text',req:true},{k:'to',label:'New Meter Location',type:'text',req:true},{k:'reading',label:'Current Meter Reading',type:'number',req:true}]);
+reg('raise_water_meter','Raise Water Meter','⬆️','meter','Authorized',[{k:'account',label:'Customer / Account No.',type:'text',req:true},{k:'meter',label:'Meter Serial Number',type:'text',req:true},{k:'reason',label:'Reason for Raising',type:'text',req:false},{k:'photo_before',label:'Photo (Before)',type:'photo',req:false},{k:'photo_after',label:'Photo (After)',type:'photo',req:false}]);
+reg('clean_water_meter','Clean Water Meter','🧽','meter','Apparent Loss',[{k:'meter',label:'Meter Serial Number',type:'text',req:true},{k:'obstruction',label:'Obstruction Type',type:'select',req:true,opts:['Silt','Debris','Corrosion','Airlock']},{k:'readable',label:'Register Readable Now',type:'select',req:false,opts:['Yes','No']},{k:'photo_before',label:'Photo (Before)',type:'photo',req:false},{k:'photo_after',label:'Photo (After)',type:'photo',req:false}]);
+reg('reread_water_meter','Re-read Water Meter','🔁','meter','Apparent Loss',[{k:'meter',label:'Meter Serial Number',type:'text',req:true},{k:'reason',label:'Reason for Re-read',type:'text',req:false},{k:'prev',label:'Previous Reading & Date',type:'text',req:true},{k:'newreading',label:'New Reading (m³)',type:'number',req:true},{k:'photo',label:'Meter Register Photo',type:'photo',req:false},{k:'anomaly',label:'Anomaly vs Previous Reading',type:'select',req:true,opts:['None','Higher than expected','Lower than expected','Negative']}]);
+reg('read_water_meter','Read Water Meter (Usage)','🔢','meter','Authorized',[{k:'meter',label:'Meter Serial Number',type:'text',req:true},{k:'reading',label:'Current Reading (m³)',type:'number',req:true},{k:'photo',label:'Meter Register Photo',type:'photo',req:false},{k:'access',label:'Meter Accessible',type:'select',req:true,opts:['Yes','No']},{k:'condition',label:'Meter Condition',type:'select',req:true,opts:['Good','Damaged','Obstructed']}]);
+reg('inspect_measure_meter','Inspect & Measure Water Meter','📐','meter','Apparent Loss',[{k:'meter',label:'Water Meter Serial Number',type:'text',req:true},{k:'reading',label:'Current Reading',type:'number',req:true},{k:'prev',label:'Previous Reading & Date',type:'text',req:true},{k:'condition',label:'Meter Condition',type:'select',req:true,opts:['Good','Damaged','Obstructed']},{k:'photo',label:'Photo',type:'photo',req:false}]);
+/* Water Treatment Operation (generated + explicit) */
+const F_CL=[{k:'dose',label:'Chlorine Dose (kg)',type:'number',req:true},{k:'residual',label:'Residual Chlorine (mg/L)',type:'number',req:true},{k:'time',label:'Time Dosed',type:'time',req:true},{k:'photo',label:'Photo',type:'photo',req:false}];
+const F_CO=[{k:'coagulant',label:'Coagulant Type',type:'text',req:true},{k:'dose',label:'Dose (mg/L)',type:'number',req:true},{k:'mix',label:'Mixing Duration (min)',type:'number',req:true},{k:'photo',label:'Photo',type:'photo',req:false}];
+const F_AL=[{k:'dose',label:'PAC Dose (mg/L)',type:'number',req:true},{k:'volume',label:'Volume Added (L)',type:'number',req:true},{k:'photo',label:'Photo',type:'photo',req:false}];
+const F_PU=[{k:'duration',label:'Pump Duration (min)',type:'number',req:true},{k:'volume',label:'Sludge Volume (m³)',type:'number',req:true},{k:'photo',label:'Photo',type:'photo',req:false}];
+const F_DR=[{k:'duration',label:'Drain Duration (min)',type:'number',req:true},{k:'photo',label:'Photo',type:'photo',req:false}];
+const TREAT_GROUPS=[
+ {icon:'🧪',fields:F_CL,slug:'chlorine',names:['Add Chlorine - Tank 01 (East)','Add Chlorine - Tank 02 (Front/Lower)','Add Chlorine - Tank 03 (Rear/Lower)','Add Chlorine - Tank 04 (Middle)','Add Chlorine - Tank 05','Add Chlorine - Tank 06']},
+ {icon:'🌀',fields:F_CO,slug:'coag',names:['Dose/Stir Coagulant - Single Basin','Dose/Stir Coagulant - Middle Basin','Dose/Stir Coagulant - West Basin','Dose/Stir Coagulant - Basin 4','Dose/Stir Coagulant - Basin 5']},
+ {icon:'⚗️',fields:F_AL,slug:'alum',names:['Add Alum (PAC) - Tank 1, Single Basin','Add Alum (PAC) - Tank 2, Middle Basin','Add Alum (PAC) - Tank 3, West Basin','Add Alum (PAC) - Tank 4','Add Alum (PAC) - Tank 5']},
+ {icon:'🛢️',fields:F_PU,slug:'pump',names:['Pump Coagulant/Sludge - Basin 1, Single Basin','Pump Coagulant/Sludge - Basin 2, Middle Basin','Pump Coagulant/Sludge - Basin 3, West Basin','Pump Coagulant/Sludge - Basin 04','Pump Coagulant/Sludge - Basin 05']},
+ {icon:'🚿',fields:F_DR,slug:'drain',names:['Drain Coagulant/Sludge - Single Basin, Valve 1','Drain Coagulant/Sludge - Middle Basin, Valve 1','Drain Coagulant/Sludge - West Basin, Valve 1','Drain Coagulant/Sludge - Basin 04','Drain Coagulant/Sludge - Basin 05']},
+];
+const TREAT_SLUGS=[];
+TREAT_GROUPS.forEach(g=>g.names.forEach((nm,i)=>{const s=g.slug+'_'+(i+1);reg(s,nm,g.icon,'treat','Authorized',g.fields);TREAT_SLUGS.push(s);}));
+reg('add_diesel','Add Diesel Fuel to Engine','⛽','treat','Authorized',[{k:'engine',label:'Engine / Generator ID',type:'text',req:true},{k:'diesel',label:'Diesel Added (L)',type:'number',req:true},{k:'hours',label:'Running Hours',type:'number',req:false},{k:'photo',label:'Photo',type:'photo',req:false}]);
+reg('replace_motor','Replace Motor','⚙️','treat','Authorized',[{k:'asset',label:'Asset / Pump ID',type:'text',req:true},{k:'existing',label:'Existing Motor Rating',type:'text',req:true},{k:'newrating',label:'New Motor Rating',type:'text',req:true},{k:'reason',label:'Reason for Replacement',type:'text',req:true},{k:'photo',label:'Photo',type:'photo',req:false}]);
+reg('water_quality_test','Perform Water Quality Test','💠','treat','Authorized',[{k:'point',label:'Sample Point',type:'text',req:true},{k:'ph',label:'pH',type:'number',req:true},{k:'turbidity',label:'Turbidity (NTU)',type:'number',req:true},{k:'residual',label:'Residual Cl₂ (mg/L)',type:'number',req:false},{k:'result',label:'Result',type:'select',req:true,opts:['Pass','Fail']}]);
+reg('inspect_raw_water_pump','Inspect Raw Water Pump/Motor','🔧','treat','Authorized',[{k:'asset',label:'Pump / Motor ID',type:'text',req:true},{k:'condition',label:'Condition',type:'select',req:true,opts:['Good','Fair','Faulty']},{k:'vibration',label:'Vibration / Noise',type:'select',req:true,opts:['Normal','Abnormal']},{k:'action',label:'Action Taken',type:'text',req:true},{k:'photo',label:'Photo',type:'photo',req:false}]);
+/* Billing and Administration */
+reg('distribute_water_bills','Distribute Water Bills','📄','admin','NRW Data',[{k:'zone',label:'Route / Zone',type:'text',req:true},{k:'toDeliver',label:'Bills to Deliver (Count)',type:'number',req:true},{k:'delivered',label:'Bills Delivered (Count)',type:'number',req:true},{k:'status',label:'Delivery Status',type:'select',req:true,opts:['Complete','Partial','Failed']},{k:'undelivered',label:'Undelivered Reason',type:'text',req:false},{k:'photo',label:'Proof of Delivery Photo',type:'photo',req:false}]);
+reg('contract_legal','Contract / Legal Document','📑','admin','Authorized',[{k:'docid',label:'Document ID',type:'text',req:true},{k:'org',label:'Customer / Organisation Name',type:'text',req:true},{k:'doctype',label:'Document Type',type:'text',req:true},{k:'site',label:'Location / Site',type:'text',req:true},{k:'status',label:'Status',type:'select',req:true,opts:['Draft','Active','Expired','Terminated']},{k:'assigned',label:'Assigned To',type:'text',req:true},{k:'due',label:'Due Date',type:'date',req:false},{k:'docs',label:'Supporting Documents',type:'photo',req:false},{k:'remarks',label:'Remarks',type:'text',req:false}]);
+reg('write_report','Write Report','📝','admin','Authorized',[{k:'type',label:'Report Type',type:'text',req:true},{k:'related',label:'Related Job ID',type:'text',req:true},{k:'dept',label:'Department',type:'select',req:true,opts:['Network','Production','Commercial','NRW']},{k:'status',label:'Status',type:'select',req:true,opts:['Draft','Submitted','Reviewed']},{k:'file',label:'Report File',type:'photo',req:true},{k:'summary',label:'Summary',type:'text',req:false},{k:'reviewer',label:'Reviewer',type:'text',req:false}]);
+/* Others not clearly defined */
+reg('express_service','Express Service','⚡','other','Authorized',[{k:'underlying',label:'Underlying Job Type',type:'text',req:true},{k:'location',label:'Location',type:'text',req:true},{k:'sla',label:'SLA Window',type:'select',req:true,opts:['2 hours','4 hours','Same day']},{k:'reason',label:'Reason for Express Service',type:'text',req:false},{k:'photo',label:'Photo',type:'photo',req:false}]);
+reg('other','Other','➕','other','Unclassified',[{k:'category',label:'Category',type:'text',req:true},{k:'description',label:'Description',type:'text',req:true},{k:'priority',label:'Priority',type:'select',req:true,opts:['Low','Medium','High']},{k:'photo',label:'Photo',type:'photo',req:false}]);
+
+const CATEGORIES={
+ 'Pipeline and Infrastructure':['repair_pipe','lay_pipe','fuse_weld_pipe','request_replace_main','replace_main'],
+ 'Customer Service Request':['new_water_connection','inspect_customer_location','suspend_water_usage','request_reconnection','temp_suspend','reconnect_supply','request_termination'],
+ 'Water Meter Services':['replace_water_meter','relocate_water_meter','raise_water_meter','clean_water_meter','reread_water_meter','read_water_meter','inspect_measure_meter'],
+ 'Water Treatment Operation':[...TREAT_SLUGS,'add_diesel','replace_motor','water_quality_test','inspect_raw_water_pump'],
+ 'Billing and Administration':['distribute_water_bills','contract_legal','write_report'],
+ 'Others not clearly defined':['express_service','other'],
+};
+const TOTAL_TASKS=Object.values(CATEGORIES).reduce((a,b)=>a+b.length,0);
+
+/* Checkpoint statuses */
+const STATUS_META={
+ 'New Intake':{c:'bg-slate-100 text-slate-700',dot:'bg-slate-400',desc:'Just received from the hotline'},
+ 'Awaiting Customer Info':{c:'bg-amber-100 text-amber-700',dot:'bg-amber-500',desc:'Follow-up sent for missing fields'},
+ 'Escalated to Call Centre':{c:'bg-orange-100 text-orange-700',dot:'bg-orange-500',desc:'Unanswered — handed to call centre'},
+ 'Requires Verification':{c:'bg-red-100 text-red-700',dot:'bg-red-500',desc:'Data quality failed — manual correction'},
+ 'Hydro1 Processed':{c:'bg-emerald-100 text-emerald-700',dot:'bg-emerald-500',desc:'Validated & pushed to Hydro1'},
+ 'Checkpoint Verified':{c:'bg-blue-100 text-blue-700',dot:'bg-blue-500',desc:'Approved by Makara / Ravi'},
+};
+const STATUS_ORDER=Object.keys(STATUS_META);
+const TERMINAL=['Hydro1 Processed','Checkpoint Verified'];
+
+/* ============================================================ STATE */
+let jobCounter=140;
+function nextJobId(){jobCounter++;return `SNSH-2026-${String(jobCounter).padStart(3,'0')}`;}
+function nowTs(){return new Date().toISOString().slice(0,16).replace('T',' ');}
+const GPS={jln:{lat:11.5564,lng:104.9282,label:'Jalan Besar (near market)'},river:{lat:11.5610,lng:104.9110,label:'42 Riverside Rd'},market:{lat:11.5700,lng:104.9000,label:'118 Market St'},lake:{lat:11.5490,lng:104.9330,label:'Blk 9, Lower East'}};
+
+const state={
+ view:'hotline', activeTab:'All', browseQuery:'', overrideId:null,
+ tasks:seedTasks(),
+ tg:blankTG(),
+};
+function blankTG(){return {step:'compose',payload:{photo:false,voice:false,location:null,contact:{name:'',phone:''},text:'',photoName:'',recording:false},hint:null,ex:null,jobKey:null,confidence:0,values:{},missing:[],chat:[],stages:[],recordId:null,finalStatus:null,who:'Makara',manualQuery:''};}
+function seedTasks(){return [
+ {id:'SNSH-2026-138',jobKey:'repair_pipe',title:T.repair_pipe.name,loc:'Jalan Besar (near market)',loss:'Real Loss',channel:'Telegram Hotline',status:'Hydro1 Processed',reporter:'@sok_dara',phone:'012345678',ts:'2026-07-21 08:14',gps:GPS.jln,confidence:94,details:{location:'Jalan Besar (near market)',damage:'Burst',severity:'Major'}},
+ {id:'SNSH-2026-135',jobKey:'read_water_meter',title:T.read_water_meter.name,loc:'Blk 9, Lower East',loss:'Authorized',channel:'Telegram Hotline',status:'Awaiting Customer Info',reporter:'@lim_wei',phone:'0170001122',ts:'2026-07-21 07:50',gps:GPS.lake,confidence:78,details:{reading:'2317'}},
+ {id:'SNSH-2026-131',jobKey:'inspect_customer_location',title:T.inspect_customer_location.name,loc:'118 Market St',loss:'Authorized',channel:'Telegram Hotline',status:'Escalated to Call Centre',reporter:'@anon',phone:'0999',ts:'2026-07-20 16:30',gps:GPS.market,confidence:41,details:{address:'118 Market St'}},
+ {id:'SNSH-2026-129',jobKey:'replace_water_meter',title:T.replace_water_meter.name,loc:'42 Riverside Rd',loss:'Apparent Loss',channel:'Telegram Hotline',status:'Requires Verification',reporter:'@test_user',phone:'12',ts:'2026-07-20 14:10',gps:GPS.river,confidence:66,details:{address:'42 Riverside Rd',existing:'WM-4412',reason:'Under-registration'}},
+ {id:'SNSH-2026-126',jobKey:'water_quality_test',title:T.water_quality_test.name,loc:'Clearwell · Outlet B',loss:'Authorized',channel:'Telegram Hotline',status:'Checkpoint Verified',reporter:'@resident_ky',phone:'0161234567',ts:'2026-07-19 11:20',gps:null,confidence:88,details:{point:'Outlet B',ph:'7.2',turbidity:'0.8',result:'Pass'}},
+ {id:'SNSH-2026-124',jobKey:'new_water_connection',title:T.new_water_connection.name,loc:'22 Orchard Lane',loss:'Authorized',channel:'Telegram Hotline',status:'New Intake',reporter:'@dara_p',phone:'0123998877',ts:'2026-07-19 09:05',gps:null,confidence:82,details:{customer:'Dara P',contact:'0123998877',address:'22 Orchard Lane',building:'House'}},
+];}
+
+/* Example incoming reports — craft each branch */
+const EXAMPLES=[
+ {icon:'💥',label:'Burst pipe — full report',key:'repair_pipe',conf:94,payload:{photo:true,voice:true,location:GPS.jln,contact:{name:'Sok Dara',phone:'012345678'},text:'Huge burst pipe on the main road at Jalan Besar, water flooding everywhere!'},ai:{vision:'Circumferential pipe burst · road flooding · Major severity',transcript:'The main pipe burst near the market, water is gushing across the road.',damage:'Burst',severity:'Major'}},
+ {icon:'📟',label:'Meter issue — missing fields',key:'read_water_meter',conf:76,payload:{photo:true,voice:false,location:GPS.lake,contact:{name:'Lim Wei',phone:'0170001122'},text:'My water meter reading looks wrong this month.'},ai:{vision:'Meter register partly visible · serial number unclear',transcript:'',reading:'2317'}},
+ {icon:'❓',label:'Vague — low confidence',key:null,conf:38,payload:{photo:false,voice:true,location:GPS.market,contact:{name:'Anon',phone:'0161112222'},text:'Something is wrong with the water near me.'},ai:{vision:'',transcript:'Uh, the water is... not good? I am not sure what it is.'}},
+ {icon:'⚠️',label:'Leak — bad contact (quality fail)',key:'repair_pipe',conf:80,payload:{photo:true,voice:false,location:GPS.river,contact:{name:'Test',phone:'12'},text:'Small leak at my house pipe connection.'},ai:{vision:'Minor pipe leak at service connection',transcript:'',damage:'Leak',severity:'Minor'}},
+];
+
+/* ============================================================ VIEW SWITCH */
+function setView(v){
+ state.view=v;
+ ['hotline','dashboard'].forEach(x=>document.getElementById('view-'+x).classList.toggle('hidden',x!==v));
+ const on='bg-white text-navy',off='text-slate-200 hover:text-white';
+ document.getElementById('nav-hotline').className='px-3 sm:px-3.5 py-1.5 rounded-lg flex items-center gap-1.5 transition '+(v==='hotline'?on:off);
+ document.getElementById('nav-dashboard').className='px-3 sm:px-3.5 py-1.5 rounded-lg flex items-center gap-1.5 transition '+(v==='dashboard'?on:off);
+ if(v==='hotline') renderTG();
+ if(v==='dashboard') renderDashboard();
+ window.scrollTo({top:0});
+}
+
+/* ============================================================ SHARED */
+function snake(l){return l.toLowerCase().replace(/\([^)]*\)/g,'').replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');}
+function toIso(ts){if(!ts)return'';let s=String(ts).trim().replace(' ','T');if(/T\d{2}:\d{2}$/.test(s))s+=':00';return s;}
+function escapeHtml(s){return String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+function toSchema(t){
+ const tpl=T[t.jobKey]||{fields:[]},task_details={},photos=[];
+ tpl.fields.forEach(f=>{const v=t.details?t.details[f.k]:undefined;if(v===undefined||v==='')return;if(f.type==='photo'||String(v).toLowerCase().endsWith('.jpg'))photos.push(v);else task_details[snake(f.label)]=v;});
+ const location={address:t.loc};if(t.gps){location.latitude=t.gps.lat;location.longitude=t.gps.lng;}
+ const report={timestamp:toIso(t.ts),reported_by:(t.reporter||'').replace(/^@/,''),channel:t.channel};
+ if(t.phone)report.contact_phone=t.phone;
+ return {issue:{id:t.id,job_type:t.title,category:CAT_LABEL[tpl.cat],iwa_asset:tpl.iwa,iwa_classification:t.loss,status:t.status==='Hydro1 Processed'?'Ready_For_Hydro1':t.status.replace(/[^A-Za-z]+/g,'_'),ai_confidence:(t.confidence||0)+'%'},report,location,task_details,attachments:{photos,documents:[]}};
+}
+function pushTask(t){state.tasks.unshift(t);updateQueueBadge();}
+function updateQueueBadge(){const n=state.tasks.filter(t=>!TERMINAL.includes(t.status)).length;const b=document.getElementById('queue-badge');b.textContent=n;b.classList.toggle('hidden',n===0||state.view==='dashboard');}
+
+/* ============================================================ TELEGRAM PHONE */
+const phone=()=>document.getElementById('tg-phone');
+function renderTG(){ renderPhone(); renderPipeline(); }
+function renderPhone(){
+ const tg=state.tg;
+ const header=`<div class="bg-tg text-white px-4 py-3 flex items-center gap-3">
+    <div class="w-9 h-9 rounded-full bg-white/20 grid place-items-center text-lg">💧</div>
+    <div class="leading-tight"><p class="font-600 text-sm">Senseih Water Hotline</p><p class="text-[11px] text-white/80">bot · online</p></div>
+    <div class="ml-auto text-white/70 text-xs">⋮</div></div>`;
+ const chat=`<div id="tg-chat" class="tgchat flex-1 overflow-y-auto scroll p-3 space-y-2">${chatHtml()}</div>`;
+ let footer='';
+ if(tg.step==='compose') footer=composeHtml();
+ else if(tg.step==='followup') footer=`<div class="border-t border-slate-200 bg-white p-3 text-center"><p class="text-[12px] text-slate-500">Waiting for the customer to reply above…</p></div>`;
+ else if(tg.step==='done') footer=`<div class="border-t border-slate-200 bg-white p-3"><button onclick="tgReset()" class="w-full rounded-xl bg-tg hover:bg-tgdk text-white font-600 py-2.5 text-sm transition">Start a new report</button></div>`;
+ else footer=`<div class="border-t border-slate-200 bg-white p-3 text-center"><p class="text-[12px] text-slate-400 flex items-center justify-center gap-2"><span class="w-3 h-3 border-2 border-tg border-t-transparent rounded-full spin"></span>AI pipeline is processing…</p></div>`;
+ phone().innerHTML=header+chat+footer;
+ const c=document.getElementById('tg-chat'); if(c) c.scrollTop=c.scrollHeight;
+}
+function chatHtml(){
+ const tg=state.tg;
+ if(!tg.chat.length && tg.step==='compose') return `<div class="text-center mt-6"><div class="inline-block bg-white/80 rounded-2xl px-4 py-3 text-[12px] text-slate-600 max-w-[85%] shadow-sm">👋 Hi! Report a water issue — send a <b>photo</b>, an optional <b>voice note</b>, your <b>location</b> and <b>contact</b>. Try a sample report below.</div></div>`;
+ return tg.chat.map(m=>{
+   if(m.from==='user') return `<div class="flex justify-end"><div class="rise bg-[#EFFDDE] rounded-2xl rounded-br-md px-3 py-2 max-w-[82%] shadow-sm text-[13px] text-slate-800">${m.html}</div></div>`;
+   if(m.from==='bot') return `<div class="flex justify-start"><div class="rise bg-white rounded-2xl rounded-bl-md px-3 py-2 max-w-[85%] shadow-sm text-[13px] text-slate-700">${m.html}</div></div>`;
+   return `<div class="text-center"><span class="text-[10px] bg-black/10 text-slate-600 rounded-full px-2 py-0.5">${m.html}</span></div>`;
+ }).join('');
+}
+function composeHtml(){
+ const p=state.tg.payload;
+ const chip=(on,icon,label,onclk)=>`<button onclick="${onclk}" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-[12px] font-500 transition ${on?'border-tg bg-sky-50 text-tg':'border-slate-200 text-slate-500 hover:border-slate-300'}">${icon} ${label}${on?' ✓':''}</button>`;
+ const rec=p.recording;
+ return `<div class="border-t border-slate-200 bg-white p-3 space-y-2.5">
+   <div class="flex gap-1.5 overflow-x-auto scroll pb-1">${EXAMPLES.map((e,i)=>`<button onclick="tgExample(${i})" class="shrink-0 text-[11px] font-500 rounded-full border border-slate-200 hover:border-tg hover:bg-sky-50 px-2.5 py-1 text-slate-600 transition">${e.icon} ${e.label}</button>`).join('')}</div>
+   <div class="flex flex-wrap gap-1.5">
+     ${chip(p.photo,'📷','Photo','tgPhoto()')}
+     ${rec?`<button onclick="tgRecordStop()" class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg border border-red-300 bg-red-50 text-red-600 text-[12px] font-600"><span class="w-2 h-2 rounded-full bg-red-500 pulse-ring"></span><span class="wave">${'<span></span>'.repeat(7)}</span> stop</button>`:chip(p.voice,'🎙','Voice','tgRecordStart()')}
+     ${chip(!!p.location,'📍','Location','tgLoc()')}
+   </div>
+   <div class="grid grid-cols-2 gap-2">
+     <input value="${escapeHtml(p.contact.name)}" oninput="state.tg.payload.contact.name=this.value" placeholder="Your name" class="text-[13px] rounded-lg border border-slate-200 px-2.5 py-1.5 bg-slate-50 focus:bg-white">
+     <input value="${escapeHtml(p.contact.phone)}" oninput="state.tg.payload.contact.phone=this.value" placeholder="Phone number" class="text-[13px] rounded-lg border border-slate-200 px-2.5 py-1.5 bg-slate-50 focus:bg-white">
+   </div>
+   <div class="flex items-end gap-2">
+     <textarea oninput="state.tg.payload.text=this.value" rows="1" placeholder="Describe the issue (optional)" class="flex-1 text-[13px] rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:bg-white resize-none">${escapeHtml(p.text)}</textarea>
+     <button onclick="tgSend()" ${(p.photo||p.voice||p.text.trim())?'':'disabled'} class="shrink-0 w-10 h-10 rounded-full grid place-items-center transition ${(p.photo||p.voice||p.text.trim())?'bg-tg hover:bg-tgdk text-white':'bg-slate-200 text-slate-400'}">
+       <svg viewBox="0 0 24 24" class="w-5 h-5" fill="currentColor"><path d="M3 20.5v-6l8-2-8-2v-6l18 8-18 8z"/></svg></button>
+   </div>
+ </div>`;
+}
+function tgExample(i){const e=EXAMPLES[i];state.tg.payload=JSON.parse(JSON.stringify(e.payload));state.tg.payload.photoName=e.payload.photo?'issue_photo.jpg':'';state.tg.payload.recording=false;state.tg.ex=i;renderPhone();}
+function tgPhoto(){const p=state.tg.payload;p.photo=!p.photo;p.photoName=p.photo?'issue_photo.jpg':'';renderPhone();}
+function tgRecordStart(){state.tg.payload.recording=true;renderPhone();}
+function tgRecordStop(){const p=state.tg.payload;p.recording=false;p.voice=true;renderPhone();toast('🎙️','Voice note attached');}
+function tgLoc(){const p=state.tg.payload;p.location=p.location?null:(state.tg.ex!=null?EXAMPLES[state.tg.ex].payload.location:GPS.jln);renderPhone();}
+
+/* ============================================================ AI PIPELINE */
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+let waitResolver=null;
+function waitForUser(){return new Promise(r=>{waitResolver=r;});}
+function resumeUser(v){if(waitResolver){const r=waitResolver;waitResolver=null;r(v);}}
+const STAGE_DEF=[
+ ['payload','📥','Raw Telegram payload'],['vision','🖼️','Image OCR / Vision analysis'],['voice','🎧','Voice-to-Text transcription'],
+ ['extract','📍','Location & Contact extraction'],['match','🧠','Task matching · 54 types'],['populate','🗂️','Template auto-population'],
+ ['check1','✅','CHECK 1 · Required fields'],['check2','🔎','CHECK 2 · Data quality'],['record','📄','Master Schema Issue Record'],['hydro1','🚀','Push to Hydro1 Telegram Group'],
+];
+function initStages(){state.tg.stages=STAGE_DEF.map(([id,icon,label])=>({id,icon,label,status:'idle',detail:''}));}
+function setStage(id,status,detail){const s=state.tg.stages.find(x=>x.id===id);if(s){s.status=status;if(detail!==undefined)s.detail=detail;}renderPipeline();}
+function botMsg(html){state.tg.chat.push({from:'bot',html});renderPhone();}
+function userMsg(html){state.tg.chat.push({from:'user',html});renderPhone();}
+function sysMsg(html){state.tg.chat.push({from:'sys',html});renderPhone();}
+
+async function tgSend(){
+ const tg=state.tg,p=tg.payload;
+ // build user message bubble
+ let parts=[];
+ if(p.photo) parts.push('📷 <span class="text-slate-500">Photo attached</span>');
+ if(p.voice) parts.push('🎙️ <span class="text-slate-500">Voice note (0:06)</span>');
+ if(p.location) parts.push('📍 '+(p.location.label||'Pinned location'));
+ if(p.text) parts.push(escapeHtml(p.text));
+ if(p.contact.name||p.contact.phone) parts.push(`<span class="text-slate-500">👤 ${escapeHtml(p.contact.name||'—')} · ${escapeHtml(p.contact.phone||'—')}</span>`);
+ userMsg(parts.join('<br>'));
+ tg.step='processing'; initStages(); renderPhone(); renderPipeline();
+ botMsg('Thanks! Processing your report… 🤖');
+
+ const hint = tg.ex!=null ? {key:EXAMPLES[tg.ex].key,conf:EXAMPLES[tg.ex].conf,...EXAMPLES[tg.ex].ai} : deriveHint(p);
+ const ex = buildExtraction(p,hint);
+ tg.confidence = hint.conf;
+
+ await sleep(450); setStage('payload','done',`Received · ${[p.photo&&'photo',p.voice&&'voice',p.location&&'GPS',(p.contact.phone)&&'contact'].filter(Boolean).join(' · ')||'text'}`);
+ await sleep(500);
+ if(p.photo){setStage('vision','run');await sleep(1000);setStage('vision','done',ex.visionText||'Image analysed');}else setStage('vision','skip','No image attached');
+ await sleep(350);
+ if(p.voice){setStage('voice','run');await sleep(900);setStage('voice','done','“'+(ex.transcript||'…')+'”');}else setStage('voice','skip','No voice note');
+ await sleep(350);
+ setStage('extract','run');await sleep(700);setStage('extract','done',`${ex.locText||'no location'} · ${ex.name||'no name'} · ${ex.phone||'no phone'}`);
+ await sleep(400);
+
+ // MATCHING + confidence
+ setStage('match','run');await sleep(950);
+ if(hint.key && hint.conf>=60){ tg.jobKey=hint.key; setStage('match','done',`Confident match ${hint.conf}% → ${T[hint.key].name}`); }
+ else{
+   setStage('match','branch',`Low confidence ${hint.conf}% · manual selection required`);
+   tg.who = Math.random()<.5?'Makara':'Ravi';
+   tg.step='manualselect'; renderPipeline();
+   const picked=await waitForUser();
+   tg.jobKey=picked; tg.confidence=100;
+   setStage('match','done',`Manually selected by ${tg.who} → ${T[picked].name}`);
+   tg.step='processing'; renderPhone();
+ }
+ await sleep(400);
+
+ // POPULATE
+ setStage('populate','run');await sleep(750);
+ tg.values=mapFields(tg.jobKey,ex);
+ const filled=Object.values(tg.values).filter(v=>v).length, total=T[tg.jobKey].fields.filter(f=>f.req).length;
+ setStage('populate','done',`${filled} fields auto-filled · ${T[tg.jobKey].name}`);
+ await sleep(400);
+
+ // CHECK 1 — required fields
+ setStage('check1','run');await sleep(750);
+ tg.missing=computeMissing(tg.jobKey,tg.values,p.location);
+ if(tg.missing.length){
+   setStage('check1','branch',`Missing: ${tg.missing.join(', ')}`);
+   botMsg(`To log this we still need: <b>${tg.missing.join(', ')}</b>. Could you reply with these details?`);
+   renderFollowupButtons();
+   tg.step='followup'; renderPhone();
+   const resp=await waitForUser();
+   if(resp==='reply'){
+     fillMissing(tg.jobKey,tg.missing,p);
+     userMsg('Sure — '+tg.missing.map(m=>`${m}: provided`).join(', '));
+     tg.missing=computeMissing(tg.jobKey,tg.values,p.location);
+     setStage('check1','done','Customer supplied the missing fields ✓');
+     tg.step='processing'; renderPhone();
+   }else{
+     userMsg('<span class="text-slate-400 italic">…no response</span>');
+     setStage('check1','fail','No response within window · escalating');
+     for(const s of ['check2','record','hydro1']) setStage(s,'skip','—');
+     botMsg('We couldn’t reach you, so your report was <b>escalated to our Call Centre</b> for follow-up. ☎️');
+     finalize('Escalated to Call Centre');
+     return;
+   }
+ } else setStage('check1','done','All required fields present ✓');
+ await sleep(400);
+
+ // CHECK 2 — data quality
+ setStage('check2','run');await sleep(800);
+ const q=quality(tg.jobKey,tg.values,p);
+ if(!q.ok){
+   setStage('check2','fail',q.reason);
+   for(const s of ['record','hydro1']) setStage(s,'skip','—');
+   botMsg('Your report needs a quick manual check by our team before it’s logged. We’ll be in touch. 🛠️');
+   finalize('Requires Verification');
+   return;
+ }
+ setStage('check2','done','Rule-based quality checks passed ✓');
+ await sleep(400);
+
+ // RECORD + HYDRO1
+ setStage('record','run');await sleep(750);
+ const rec=finalize('Hydro1 Processed',true);
+ setStage('record','done','5-section master schema generated');
+ await sleep(500);
+ setStage('hydro1','run');await sleep(950);
+ setStage('hydro1','done','Payload delivered to Hydro1 Telegram Group');
+ botMsg(`✅ Logged as <b>${rec.id}</b> and sent to Hydro1. Thank you! Our crew is on it.`);
+ tg.step='done'; renderPhone(); renderPipeline();
+}
+function renderFollowupButtons(){ /* buttons rendered inside pipeline follow-up card + phone note */ renderPipeline(); }
+
+function deriveHint(p){
+ const text=((p.text||'')+' '+(p.voice?'voice':'')).toLowerCase();
+ const map=[['repair_pipe',/burst|leak|pipe|flood|main|gush/],['read_water_meter',/read|reading/],['replace_water_meter',/meter.*(replace|faulty|broke|wrong|stuck)|replace.*meter/],['new_water_connection',/new connection|connect|install/],['inspect_customer_location',/inspect|check my|come look/],['water_quality_test',/dirty|smell|colou?r|quality|taste|brown/]];
+ let key=null;for(const[k,re]of map){if(re.test(text)){key=k;break;}}
+ const conf=key?(p.photo?90:70):38;
+ return {key,conf,vision:p.photo?'Defect detected in image':'',transcript:p.voice?(p.text||'Voice note received'):'',damage:/burst/.test(text)?'Burst':/crack/.test(text)?'Crack':/leak/.test(text)?'Leak':'',severity:/major|huge|flood|gush/.test(text)?'Major':/minor|small/.test(text)?'Minor':''};
+}
+function buildExtraction(p,hint){
+ const gps=p.location;
+ return {photo:p.photo,voice:p.voice,visionText:p.photo?(hint.vision||'Image analysed · defect detected'):'',
+   transcript:p.voice?(hint.transcript||p.text||'Voice note transcribed'):'',
+   locText:gps?(gps.label||`Pin ${gps.lat}, ${gps.lng}`):'',
+   name:p.contact.name,phone:p.contact.phone,
+   serial:hint.serial||(/(WM-?\d{3,6})/i.test(p.text||'')?p.text.match(/(WM-?\d{3,6})/i)[1].toUpperCase():''),
+   reading:hint.reading||'',damage:hint.damage||'',severity:hint.severity||'',text:p.text||hint.transcript||''};
+}
+function matchOpt(f,val){if(!val)return undefined;const v=String(val).toLowerCase();return f.opts.find(o=>o.toLowerCase()===v)||f.opts.find(o=>o.toLowerCase().includes(v))||undefined;}
+function mapFields(k,ex){
+ const vals={};
+ T[k].fields.forEach(f=>{
+   let v;
+   if(['location','point','site','zone'].includes(f.k)) v=ex.locText;
+   else if(f.k==='address') v=ex.locText;
+   else if(f.k==='customer'||f.k==='org') v=ex.name;
+   else if(f.k==='contact') v=ex.phone;
+   else if(['meter','existing'].includes(f.k)) v=ex.serial;
+   else if(['reading','newreading'].includes(f.k)) v=ex.reading;
+   else if(f.k==='damage') v=matchOpt(f,ex.damage);
+   else if(f.k==='severity') v=matchOpt(f,ex.severity);
+   else if(['description','reason','summary','action','underlying','type','doctype'].includes(f.k)) v=ex.text?ex.text.slice(0,60):undefined;
+   if(v) vals[f.k]=v;
+ });
+ return vals;
+}
+function computeMissing(k,values,gps){
+ const tpl=T[k],missing=tpl.fields.filter(f=>f.req&&!values[f.k]).map(f=>f.label);
+ const locKeys=['location','address','point','site','from','zone'];
+ if(tpl.fields.some(f=>locKeys.includes(f.k)) && !locKeys.some(x=>values[x]) && !gps) missing.push('Location / GPS');
+ return missing;
+}
+function fillMissing(k,missing,p){
+ T[k].fields.filter(f=>missing.includes(f.label)).forEach(f=>{
+   state.tg.values[f.k]= f.type==='select'?f.opts[0] : f.type==='number'?'12' : f.type==='date'?new Date().toISOString().slice(0,10) : (f.k==='meter'||f.k==='existing')?'WM-'+Math.floor(1000+Math.random()*8999) : 'Provided by customer';
+ });
+ if(missing.includes('Location / GPS')&&!p.location) p.location=GPS.jln;
+}
+function quality(k,values,p){
+ const reasons=[];
+ const phone=(p.contact.phone||'').replace(/\D/g,'');
+ if(phone.length<8) reasons.push('Contact phone number is invalid');
+ const locKeys=['location','address','point','site','from','zone'];
+ if(!p.location && !locKeys.some(x=>values[x])) reasons.push('No verifiable location');
+ T[k].fields.forEach(f=>{if(f.type==='number'){const v=values[f.k];if(v!==undefined&&v!==''&&isNaN(Number(v)))reasons.push(f.label+' is not numeric');}});
+ return {ok:reasons.length===0,reason:reasons[0]||''};
+}
+function finalize(status,ret){
+ const tg=state.tg,k=tg.jobKey,p=tg.payload,details={};
+ T[k].fields.forEach(f=>{if(tg.values[f.k])details[f.k]=tg.values[f.k];});
+ const gps=p.location, loc=tg.values.location||tg.values.address||tg.values.site||(gps?(gps.label||`Pin ${gps.lat}, ${gps.lng}`):'—');
+ const rec={id:nextJobId(),jobKey:k,title:T[k].name,loc,loss:T[k].loss,channel:'Telegram Hotline',status,
+   reporter:'@'+((p.contact.name||'anon').toLowerCase().replace(/\s+/g,'_')),phone:p.contact.phone,ts:nowTs(),gps,details,confidence:tg.confidence};
+ pushTask(rec); tg.recordId=rec.id; tg.finalStatus=status;
+ if(status!=='Hydro1 Processed'){ tg.step='done'; renderPhone(); }
+ renderPipeline();
+ return rec;
+}
+function tgReset(){state.tg=blankTG();renderTG();}
+
+/* ---- ops manual-select picker (Makara/Ravi) ---- */
+function opsPickerHtml(){
+ const q=(state.tg.manualQuery||'').toLowerCase();
+ const groups=Object.entries(CATEGORIES).map(([cat,keys])=>{
+   const items=keys.filter(k=>T[k].name.toLowerCase().includes(q)||cat.toLowerCase().includes(q));
+   if(!items.length)return'';
+   return `<div class="mb-2"><p class="text-[10px] font-600 uppercase tracking-wider text-slate-400 mb-1">${cat}</p>
+     <div class="grid sm:grid-cols-2 gap-1.5">${items.map(k=>{const c=CAT_STYLE[T[k].cat];return `<button onclick="resumeUser('${k}')" class="text-left px-2.5 py-1.5 rounded-lg border border-slate-200 hover:border-tg hover:bg-sky-50 transition flex items-center gap-2"><span class="w-7 h-7 rounded-md ${c.ico} grid place-items-center text-sm shrink-0">${T[k].icon}</span><span class="text-[12px] font-600 text-slate-800 leading-tight truncate">${T[k].name}</span></button>`;}).join('')}</div></div>`;
+ }).join('');
+ return `<input value="${state.tg.manualQuery||''}" oninput="state.tg.manualQuery=this.value;renderPipeline()" placeholder="Search all ${TOTAL_TASKS} master task types…" class="w-full text-[13px] rounded-lg border border-slate-200 px-3 py-2 bg-white mb-2">
+   <div class="max-h-56 overflow-y-auto scroll pr-1">${groups||'<p class="text-[12px] text-slate-400 py-3 text-center">No match.</p>'}</div>`;
+}
+
+/* ============================================================ PIPELINE RENDER */
+function renderPipeline(){
+ const tg=state.tg, el=document.getElementById('tg-pipeline');
+ if(tg.step==='compose'){
+   el.innerHTML=`<div class="bg-white rounded-2xl border border-slate-200 shadow-card p-6">
+     <p class="text-xs font-600 tracking-widest text-tg uppercase mb-3">AI extraction &amp; validation pipeline</p>
+     <div class="space-y-2 opacity-60">${STAGE_DEF.map(([id,icon,label])=>`<div class="flex items-center gap-3 px-3 py-2 rounded-xl border border-slate-100 bg-slate-50/60"><span class="w-8 h-8 rounded-lg bg-white grid place-items-center text-base">${icon}</span><span class="text-[13px] font-500 text-slate-500">${label}</span></div>`).join('')}</div>
+     <p class="text-[12px] text-slate-400 mt-4">Send a report from the hotline to run the pipeline. Try the sample reports to see the confident-match, missing-info, low-confidence and quality-fail branches.</p>
+   </div>`;
+   return;
+ }
+ const STAGE_STYLE={idle:'border-slate-200 bg-white text-slate-400',run:'border-tg bg-sky-50 text-tg',done:'border-emerald-200 bg-emerald-50 text-emerald-700',skip:'border-slate-100 bg-slate-50 text-slate-300',branch:'border-amber-300 bg-amber-50 text-amber-700',fail:'border-red-300 bg-red-50 text-red-700'};
+ const mark={idle:'',run:'<span class="w-4 h-4 border-2 border-tg border-t-transparent rounded-full spin"></span>',done:'✓',skip:'–',branch:'!',fail:'✕'};
+ const rows=tg.stages.map(s=>{
+   let extra='';
+   if(s.id==='match'&&tg.step==='manualselect'&&s.status==='branch') extra=`<div class="mt-2 rounded-xl border border-amber-200 bg-white p-3"><p class="text-[12px] font-600 text-amber-700 mb-2">⚠️ Low confidence — ${tg.who}, select the correct task type:</p>${opsPickerHtml()}</div>`;
+   if(s.id==='check1'&&tg.step==='followup'&&s.status==='branch') extra=`<div class="mt-2 rounded-xl border border-amber-200 bg-white p-3"><p class="text-[12px] text-slate-600 mb-2">Simulated Telegram follow-up sent asking only for: <b>${tg.missing.join(', ')}</b></p><div class="flex gap-2"><button onclick="resumeUser('reply')" class="flex-1 text-[12px] font-600 bg-tg hover:bg-tgdk text-white rounded-lg py-2">Customer replies with details</button><button onclick="resumeUser('noreply')" class="flex-1 text-[12px] font-600 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg py-2">No response</button></div></div>`;
+   return `<div><div class="flex items-center gap-3 px-3 py-2.5 rounded-xl border ${STAGE_STYLE[s.status]} transition-all">
+       <span class="w-8 h-8 rounded-lg bg-white/70 grid place-items-center text-base shrink-0">${s.icon}</span>
+       <div class="min-w-0 flex-1"><p class="text-[13px] font-600 leading-tight">${s.label}</p>${s.detail?`<p class="text-[11px] opacity-80 leading-tight mt-0.5 break-words">${s.detail}</p>`:''}</div>
+       <span class="text-[13px] font-700 w-5 text-center shrink-0">${mark[s.status]}</span></div>${extra}</div>`;
+ }).join('<div class="h-1.5 w-px bg-slate-200 ml-7"></div>');
+
+ let handoff='';
+ if(tg.step==='done'){
+   const st=tg.finalStatus, meta=STATUS_META[st];
+   if(st==='Hydro1 Processed'){
+     const rec=state.tasks.find(t=>t.id===tg.recordId);
+     handoff=`<div class="mt-5 rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-5 flyto">
+       <div class="flex items-center gap-3 mb-3"><div class="w-11 h-11 rounded-xl bg-tg grid place-items-center text-2xl">🚀</div>
+         <div><p class="font-display font-700 text-navy">Pushed to Hydro1</p><p class="text-[12px] text-slate-500">Telegram Group · ${escapeHtml(tg.recordId)}</p></div>
+         <span class="ml-auto text-[11px] font-600 px-2 py-1 rounded-full ${meta.c}">${st}</span></div>
+       <pre class="bg-navy text-slate-200 rounded-xl p-3 text-[10.5px] font-mono overflow-x-auto whitespace-pre max-h-56 scroll">${escapeHtml(JSON.stringify(toSchema(rec),null,2))}</pre>
+       <div class="flex gap-2 mt-3"><button onclick="tgReset()" class="flex-1 py-2 rounded-xl border border-slate-200 text-slate-600 font-600 text-sm bg-white">New report</button><button onclick="setView('dashboard')" class="flex-1 py-2 rounded-xl bg-navy text-white font-600 text-sm">Open dashboard →</button></div></div>`;
+   }else{
+     const icon=st==='Escalated to Call Centre'?'☎️':'🛠️';
+     handoff=`<div class="mt-5 rounded-2xl border-2 ${st==='Requires Verification'?'border-red-300 bg-red-50':'border-orange-300 bg-orange-50'} p-5 flyto">
+       <div class="flex items-center gap-3"><div class="w-11 h-11 rounded-xl bg-white grid place-items-center text-2xl">${icon}</div>
+         <div><p class="font-display font-700 text-navy">Held from Hydro1</p><p class="text-[12px] text-slate-600">${escapeHtml(tg.recordId)} flagged for the ops team</p></div>
+         <span class="ml-auto text-[11px] font-600 px-2 py-1 rounded-full ${meta.c}">${st}</span></div>
+       <div class="flex gap-2 mt-3"><button onclick="tgReset()" class="flex-1 py-2 rounded-xl border border-slate-200 text-slate-600 font-600 text-sm bg-white">New report</button><button onclick="setView('dashboard')" class="flex-1 py-2 rounded-xl bg-navy text-white font-600 text-sm">Open dashboard →</button></div></div>`;
+   }
+ }
+ el.innerHTML=`<div class="bg-white rounded-2xl border border-slate-200 shadow-card p-5 sm:p-6">
+   <div class="flex items-center justify-between mb-3"><p class="text-xs font-600 tracking-widest text-tg uppercase">AI extraction &amp; validation pipeline</p>
+     ${tg.confidence?`<span class="text-[11px] font-600 px-2 py-0.5 rounded-full ${tg.confidence>=60?'bg-emerald-100 text-emerald-700':'bg-amber-100 text-amber-700'}">confidence ${tg.confidence}%</span>`:''}</div>
+   <div class="space-y-0">${rows}</div>${handoff}</div>`;
+}
+
+/* ============================================================ DASHBOARD (Makara & Ravi) */
+function renderDashboard(){document.getElementById('queue-badge').classList.add('hidden');renderStats();renderStatusLegend();renderTabs();renderCards();}
+function renderStatusLegend(){document.getElementById('status-legend').innerHTML=STATUS_ORDER.map(s=>`<p class="flex items-start gap-2"><span class="w-2.5 h-2.5 rounded-full ${STATUS_META[s].dot} mt-1 shrink-0"></span><span><b class="text-slate-700">${s}</b> — <span class="text-slate-500">${STATUS_META[s].desc}</span></span></p>`).join('');}
+function renderStats(){
+ const counts={};STATUS_ORDER.forEach(s=>counts[s]=state.tasks.filter(t=>t.status===s).length);
+ const cfg=[['Awaiting Customer Info','amber'],['Escalated to Call Centre','orange'],['Requires Verification','red'],['Hydro1 Processed','emerald']];
+ const txt={amber:'text-amber-600',orange:'text-orange-600',red:'text-red-600',emerald:'text-emerald-600'};
+ document.getElementById('stat-row').innerHTML=cfg.map(([s,col])=>`<button onclick="setTab('${s}')" class="text-left bg-white rounded-xl border border-slate-200 px-3 py-2 shadow-card hover:border-tg transition"><p class="text-2xl font-display font-700 ${txt[col]} leading-none">${counts[s]}</p><p class="text-[10px] text-slate-500 mt-1 whitespace-nowrap">${s}</p></button>`).join('');
+}
+function renderTabs(){
+ const tabs=['All',...STATUS_ORDER];
+ document.getElementById('tabs').innerHTML=tabs.map(t=>{const a=state.activeTab===t;const n=t==='All'?state.tasks.length:state.tasks.filter(x=>x.status===t).length;return `<button onclick="setTab('${t.replace(/'/g,"\\'")}')" class="relative py-3 whitespace-nowrap ${a?'tab-active font-600':'hover:text-slate-700'}">${t} <span class="text-[11px] ${a?'text-tg':'text-slate-400'}">${n}</span></button>`;}).join('');
+}
+function setTab(t){state.activeTab=t;renderTabs();renderCards();}
+function renderCards(){
+ const rows=state.activeTab==='All'?state.tasks:state.tasks.filter(t=>t.status===state.activeTab);
+ document.getElementById('empty-state').classList.toggle('hidden',rows.length>0);
+ document.getElementById('cards').innerHTML=rows.map(t=>{
+   const m=STATUS_META[t.status],c=CAT_STYLE[T[t.jobKey].cat];
+   return `<div class="rise rounded-xl border border-slate-200 hover:border-slate-300 p-3.5 transition">
+     <div class="flex items-start gap-3">
+       <span class="w-10 h-10 rounded-lg ${c.ico} grid place-items-center text-lg shrink-0">${T[t.jobKey].icon}</span>
+       <div class="min-w-0 flex-1">
+         <div class="flex items-center gap-2 flex-wrap"><p class="font-600 text-slate-900 text-[14px] leading-tight">${t.title}</p>
+           <span class="text-[10px] font-600 px-1.5 py-0.5 rounded-full ${LOSS_STYLE[t.loss]}">${t.loss}</span></div>
+         <p class="text-[11px] text-slate-400 font-mono mt-0.5">${t.id} · ${escapeHtml(t.reporter)} · ${escapeHtml(t.phone||'—')} · conf ${t.confidence||'—'}%</p>
+         <p class="text-[12px] text-slate-500 mt-1 flex items-center gap-3 flex-wrap"><span>📍 ${escapeHtml(t.loc)}</span><span class="text-slate-400">${t.ts}</span><span class="text-slate-400">${CAT_LABEL[T[t.jobKey].cat]}</span></p>
+       </div>
+       <span class="shrink-0 text-[11px] font-600 px-2 py-1 rounded-full ${m.c} flex items-center gap-1.5"><span class="w-2 h-2 rounded-full ${m.dot}"></span>${t.status}</span>
+     </div>
+     <div class="flex flex-wrap gap-1.5 mt-3 pl-13">
+       <button onclick="openRecord('${t.id}')" class="text-[12px] font-600 text-white bg-navy hover:bg-steel rounded-lg px-3 py-1.5 transition">View record</button>
+       <button onclick="overrideTask('${t.id}')" class="text-[12px] font-600 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg px-2.5 py-1.5 transition">🔀 Override task</button>
+       <button onclick="escalate('${t.id}')" ${t.status==='Escalated to Call Centre'?'disabled':''} class="text-[12px] font-600 rounded-lg px-2.5 py-1.5 transition ${t.status==='Escalated to Call Centre'?'text-slate-300 bg-slate-50':'text-orange-700 bg-orange-100 hover:bg-orange-200'}">☎️ Call Centre</button>
+       ${t.status==='Requires Verification'?`<button onclick="markHydro('${t.id}')" class="text-[12px] font-600 text-emerald-700 bg-emerald-100 hover:bg-emerald-200 rounded-lg px-2.5 py-1.5 transition">🚀 Push to Hydro1</button>`:''}
+       <button onclick="approve('${t.id}')" ${t.status==='Checkpoint Verified'?'disabled':''} class="text-[12px] font-600 rounded-lg px-2.5 py-1.5 transition ${t.status==='Checkpoint Verified'?'text-slate-300 bg-slate-50':'text-blue-700 bg-blue-100 hover:bg-blue-200'}">✔️ Approve checkpoint</button>
+       <button onclick="exportRecord('${t.id}')" class="ml-auto text-[12px] font-600 text-tg hover:text-tgdk rounded-lg px-2 py-1.5 flex items-center gap-1"><svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 21h16"/></svg>JSON</button>
+     </div></div>`;
+ }).join('');
+}
+function findTask(id){return state.tasks.find(t=>t.id===id);}
+function setStatus(id,s,msg){const t=findTask(id);if(!t)return;t.status=s;renderDashboard();toast('✓',msg);}
+function escalate(id){setStatus(id,'Escalated to Call Centre','Follow-up triggered · sent to Call Centre');}
+function approve(id){setStatus(id,'Checkpoint Verified','Checkpoint approved by Makara / Ravi');}
+function markHydro(id){setStatus(id,'Hydro1 Processed','Corrected record pushed to Hydro1');}
+function overrideTask(id){state.overrideId=id;openBrowse('doOverride');}
+function doOverride(slug){const t=findTask(state.overrideId);if(t){t.jobKey=slug;t.title=T[slug].name;t.loss=T[slug].loss;closeModal();renderDashboard();toast('🔀','Task type overridden → '+T[slug].name);}state.overrideId=null;}
+
+/* browse-54 modal (used by override) */
+function openBrowse(handler){state.browseQuery='';renderBrowse(handler);}
+function renderBrowse(handler){
+ const q=(state.browseQuery||'').toLowerCase();
+ const groups=Object.entries(CATEGORIES).map(([cat,keys])=>{const items=keys.filter(k=>T[k].name.toLowerCase().includes(q)||cat.toLowerCase().includes(q));if(!items.length)return'';
+   return `<div class="mb-3"><p class="text-[11px] font-600 uppercase tracking-wider text-slate-400 mb-1.5">${cat} <span class="text-slate-300">· ${keys.length}</span></p>
+     <div class="grid sm:grid-cols-2 gap-2">${items.map(k=>{const c=CAT_STYLE[T[k].cat];return `<button onclick="${handler}('${k}')" class="text-left px-3 py-2 rounded-xl border border-slate-200 hover:border-tg hover:bg-sky-50 transition flex items-center gap-2.5"><span class="w-8 h-8 rounded-lg ${c.ico} grid place-items-center shrink-0">${T[k].icon}</span><span class="min-w-0"><span class="text-[12.5px] font-600 text-slate-800 block leading-tight truncate">${T[k].name}</span><span class="text-[10px] ${c.text} font-600">${T[k].loss}</span></span></button>`;}).join('')}</div></div>`;}).join('');
+ modal(`<div class="flex items-center gap-2 mb-3"><h3 class="font-display font-700 text-lg text-navy">Override task type</h3><span class="text-[11px] font-600 bg-slate-100 text-slate-500 rounded-full px-2 py-0.5">${TOTAL_TASKS} tasks</span><button onclick="closeModal()" class="ml-auto text-slate-400 hover:text-slate-600 text-xl leading-none">&times;</button></div>
+   <input value="${state.browseQuery||''}" oninput="state.browseQuery=this.value;renderBrowse('${handler}')" placeholder="Search tasks or categories…" class="w-full text-sm rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:bg-white mb-3">
+   <div class="max-h-[52vh] overflow-y-auto scroll pr-1">${groups||'<p class="text-sm text-slate-400 py-6 text-center">No task matches.</p>'}</div>`,'lg');
+}
+function openRecord(id){const t=findTask(id);if(!t)return;showRecordModal(t);}
+function schemaGroupsHtml(schema){return [['Issue','issue'],['Report','report'],['Location','location'],['Task Details','task_details'],['Attachments','attachments']].map(([label,key])=>{const obj=schema[key]||{};const rows=Object.entries(obj).map(([k,v])=>{let val=Array.isArray(v)?(v.length?v.join(', '):'—'):(v===''||v==null?'—':v);return `<div class="flex justify-between gap-3 py-1 border-b border-slate-100 last:border-0"><span class="text-slate-400 text-[11px] font-mono">${k}</span><span class="text-slate-700 text-[12px] font-500 text-right break-words max-w-[62%]">${escapeHtml(String(val))}</span></div>`;}).join('')||'<p class="text-[11px] text-slate-400 py-1">—</p>';return `<div class="rounded-xl border border-slate-200 p-3"><p class="text-[10px] uppercase tracking-wider text-tg font-600 mb-1.5">${label}</p>${rows}</div>`;}).join('');}
+function showRecordModal(t){const schema=toSchema(t),m=STATUS_META[t.status];
+ modal(`<div class="flex items-start gap-2 mb-3"><span class="text-xl">${T[t.jobKey].icon}</span>
+   <div><h3 class="font-display font-700 text-lg text-navy leading-tight">${t.title}</h3><p class="font-mono text-[11px] text-slate-400">${t.id} · ${escapeHtml(t.reporter)} · ${t.channel}</p></div>
+   <div class="ml-auto flex flex-col items-end gap-1"><span class="text-[11px] font-600 px-2 py-0.5 rounded-full ${m.c}">${t.status}</span><span class="text-[10px] font-600 px-2 py-0.5 rounded-full ${LOSS_STYLE[t.loss]}">${t.loss}</span></div></div>
+   <p class="text-[11px] text-slate-500 mb-3">Standardized issue record · Phase 1 master schema · AI confidence ${t.confidence||'—'}%</p>
+   <div class="grid sm:grid-cols-2 gap-2 mb-3">${schemaGroupsHtml(schema)}</div>
+   <details class="mb-3"><summary class="cursor-pointer text-[12px] font-600 text-slate-600 select-none">View export JSON</summary><pre class="mt-2 bg-navy text-slate-200 rounded-xl p-3 text-[11px] font-mono overflow-x-auto whitespace-pre">${escapeHtml(JSON.stringify(schema,null,2))}</pre></details>
+   <div class="flex gap-2"><button onclick="copyRecord('${t.id}')" class="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-600 text-sm hover:bg-slate-50">Copy JSON</button><button onclick="exportRecord('${t.id}')" class="flex-1 py-2.5 rounded-xl bg-navy hover:bg-steel text-white font-600 text-sm">Export .json</button></div>`);
+}
+function download(name,text){try{const b=new Blob([text],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(u);a.remove();},120);toast('⤓','Downloaded '+name);}catch(e){toast('⚠️','Download blocked — use Copy JSON');}}
+function copyText(text){const done=()=>toast('✓','JSON copied');if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(done).catch(()=>fb(text,done));}else fb(text,done);function fb(t,d){const ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');d();}catch(e){toast('⚠️','Copy blocked');}ta.remove();}}
+function exportRecord(id){const t=findTask(id);if(t)download(t.id+'.json',JSON.stringify(toSchema(t),null,2));}
+function copyRecord(id){const t=findTask(id);if(t)copyText(JSON.stringify(toSchema(t),null,2));}
+function exportAll(){download('issue_records_'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify(state.tasks.map(toSchema),null,2));}
+
+/* ---- modal + toast ---- */
+function modal(inner,size){const w=size==='lg'?'max-w-2xl':'max-w-md';document.getElementById('modal-root').innerHTML=`<div class="fixed inset-0 z-50 bg-navy/40 backdrop-blur-sm grid place-items-center p-4" onclick="if(event.target===this)closeModal()"><div class="pop bg-white rounded-2xl shadow-lift w-full ${w} p-5 max-h-[90vh] overflow-y-auto scroll">${inner}</div></div>`;}
+function closeModal(){document.getElementById('modal-root').innerHTML='';}
+let toastTimer;function toast(icon,msg){document.getElementById('toast-icon').textContent=icon;document.getElementById('toast-msg').innerHTML=msg;const t=document.getElementById('toast');t.classList.remove('hidden');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.add('hidden'),2600);}
+
+/* ---- init ---- */
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+setView('hotline');
+updateQueueBadge();
+</script>
+</body>
+</html>
